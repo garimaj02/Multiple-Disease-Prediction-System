@@ -6,6 +6,7 @@ Created on Thu Oct 19 15:45:46 2023
 """
 
 import pickle
+import joblib
 import lightgbm as lgb
 import streamlit as st
 from streamlit_option_menu import option_menu
@@ -20,14 +21,17 @@ loaded_model = lgb.Booster(model_file=model_filename)
 
 parkinsons_model = pickle.load(open('C:/Users/garim/OneDrive/Desktop/parkinsons_model.sav', 'rb'))
 
+Covid_19_model = joblib.load(open('C:/Users/garim/OneDrive/Desktop/random_forest_model.joblib','rb'))
+
 # sidebar for navigation
 with st.sidebar:
     selected = option_menu('Multiple Disease Prediction System',
                           ['Diabetes Prediction',
                            'Heart Disease Prediction',
                            'Dengue Prediction',
+                           'Covid-19 Prediction',
                            'Parkinsons Prediction'],
-                          icons=['activity', 'heart', 'person'],
+                          icons=['activity', 'heart', 'person','virus'],
                           default_index=0)
 
 # Diabetes Prediction Page
@@ -44,7 +48,7 @@ if selected == 'Diabetes Prediction':
     with col3:
         BloodPressure = st.text_input('Blood Pressure value')
     with col1:
-        SkinThickness = st.text_input('Skin Thickness value')
+        SkinThickness = st.text_input('Fat Thickness value')
     with col2:
         Insulin = st.text_input('Insulin Level')
     with col3:
@@ -112,7 +116,7 @@ if selected == 'Diabetes Prediction':
 
 
 # Heart Disease Prediction Page
-if (selected == 'Heart Disease Prediction'):
+if selected == 'Heart Disease Prediction':
     
     # page title
     st.title('Heart Disease Prediction using ML')
@@ -120,15 +124,13 @@ if (selected == 'Heart Disease Prediction'):
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        age = st.text_input('Age', placeholder='Enter age between 1 and 100')
+        age = st.text_input('Age', placeholder='Enter age between 1 to 100')
         
     with col2:
-        sex = st.text_input('Sex (1 = male; 0 = female)', placeholder='Enter 0 or 1')
-        if sex not in ['0', '1'] and sex != '':
-           st.warning("Please enter either '0' or '1' for Sex.")
+        sex = st.selectbox('Sex (1 = male; 0 = female)',[0,1], placeholder='Enter 0 or 1')
            
     with col3:
-        cp = st.text_input('Chest Pain (0 >= 25%; 1 >= 50%; 2 >= 75%; 3 > 75%)',placeholder= 'Enter value between 0 and 3')
+        cp = st.selectbox('Chest Pain (0 >= 25%; 1 >= 50%; 2 >= 75%; 3 > 75%)',[0,1,2,3],placeholder= 'Enter value between 0 and 3')
         
     with col1:
         trestbps = st.text_input('Resting Blood Pressure')
@@ -137,28 +139,28 @@ if (selected == 'Heart Disease Prediction'):
         chol = st.text_input('Cholestoral in mg/dl')
         
     with col3:
-        fbs = st.text_input('Fasting Blood Sugar > 120 mg/dl (1 = true; 0 = false)')
+        fbs = st.selectbox('Fasting Blood Sugar > 120 mg/dl (1 = true; 0 = false)',[0,1])
         
     with col1:
-        restecg = st.text_input('Resting Electrocardiographic results (0 >= 25%; 1 >= 50%; 2 >= 75%)')
+        restecg = st.selectbox('Resting Electrocardiographic results (0 >= 25%; 1 >= 50%; 2 >= 75%)',[0,1,2])
         
     with col2:
         thalach = st.text_input('Maximum Heart Rate achieved')
         
     with col3:
-        exang = st.text_input('Exercise Induced Angina (1 = yes; 0 = no)')
+        exang = st.selectbox('Exercise Induced Angina (1 = yes; 0 = no)',[0,1])
         
     with col1:
         oldpeak = st.text_input('ST depression induced by exercise')
         
     with col2:
-        slope = st.text_input('Slope of the peak exercise ST segment (0 >= 25%; 1 >= 50%; 2 >= 75%)')
+        slope = st.selectbox('Slope of the peak exercise ST segment (0 >= 25%; 1 >= 50%; 2 >= 75%)',[0,1,2])
         
     with col3:
         ca = st.text_input('Major vessels colored by flourosopy')
         
     with col1:
-        thal = st.text_input('thal (0 = normal; 1 = fixed defect; 2 = reversable defect)')
+        thal = st.selectbox('thal (0 = normal; 1 = fixed defect; 2 = reversable defect)',[0,1,2 ])
         
      # code for Prediction
     heart_diagnosis = ''
@@ -189,7 +191,7 @@ if (selected == 'Heart Disease Prediction'):
           st.warning("Please enter valid numeric values for all fields.")
           st.stop()
 
-        if not all([age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]):
+        if not all([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]]):
            st.warning("Please enter valid numeric values for all fields.")
         else:    
            heart_prediction = heart_disease_model.predict([[age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal]])
@@ -524,4 +526,65 @@ if selected == 'Dengue Prediction':
             """
         disclaimer_placeholder.markdown(disclaimer_content)
        
-       
+#Covid-19 Prediction Page
+if selected == 'Covid-19 Prediction':
+    # page title
+    st.title('COVID-19 Prediction using ML')
+
+    # getting the input data from the user
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        CoughSymptoms = st.selectbox('Cough symptoms(yes = 1, no = 0)',[0, 1])
+    with col2:
+        Fever = st.selectbox('Fever(yes = 1, no = 0)',[0,1])
+    with col3:
+        SoreThroat = st.selectbox('Pain In Throat(yes = 1, no = 0)', [0,1])
+    with col1:
+        ShortnessOfBreath = st.selectbox('Shortness Of Breath(yes = 1, no = 0)',[0,1])
+    with col2:
+        Headache = st.selectbox('Headache(yes = 1, no = 0)',[0,1])
+    with col3:
+        Sex = st.selectbox('Sex(1 = male; 0 = female)',[0,1])
+    with col1:
+        KnownContact = st.selectbox('Family Contact(yes = 1, no = 0)',[0,1])
+    with col2:
+        Age_60_Above = st.selectbox('Age Above 60(yes = 1, no = 0)',[0,1])
+        
+    # code for Prediction
+    covid_diagnosis = ''
+
+    # Placeholder for Disclaimer and Prediction Result
+    disclaimer_placeholder_covid = st.empty()
+    prediction_result_placeholder_covid = st.empty()
+
+    # creating a button for Prediction
+    if st.button('COVID-19 Test Result'):
+        # Validation checks
+        covid_prediction = Covid_19_model.predict([[CoughSymptoms, Fever, SoreThroat, ShortnessOfBreath, Headache, Sex, KnownContact, Age_60_Above]])
+
+        if covid_prediction[0] == 1:
+            covid_diagnosis = 'The person is predicted to have COVID-19'
+        else:
+            covid_diagnosis = 'The person is predicted to be COVID-free'
+
+        # Display Input Values
+        st.subheader('Report:')
+        st.write(f'- Cough Symptoms: {"Yes" if CoughSymptoms == 0 else "No"}')
+        st.write(f'- Fever: {"Yes" if Fever == 0 else "No"}')
+        st.write(f'- Sore Throat: {"Yes" if SoreThroat == 0 else "No"}')
+        st.write(f'- Shortness of Breath: {"Yes" if ShortnessOfBreath == 0 else "No"}')
+        st.write(f'- Headache: {"Yes" if Headache == 0 else "No"}')
+        st.write(f'- Sex: {"Male" if Sex == 0 else "Female"}')
+        st.write(f'- Known Contact: {"Yes" if KnownContact == 0 else "No"}')
+        st.write(f'- Age Above 60: {"Yes" if Age_60_Above == 0 else "No"}')
+
+        # Display Prediction Result
+        prediction_result_placeholder_covid.subheader('Prediction Result:')
+        prediction_result_placeholder_covid.success(covid_diagnosis)
+
+        # Update Disclaimer content dynamically
+        disclaimer_content_covid = """
+            **Disclaimer:**
+            This prediction is based on a machine learning model and should not be considered as a definitive diagnosis. Consult with a healthcare professional for accurate medical advice.
+            """
+        disclaimer_placeholder_covid.markdown(disclaimer_content_covid)
